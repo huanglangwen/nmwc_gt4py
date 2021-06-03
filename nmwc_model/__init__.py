@@ -1,8 +1,9 @@
 import numpy as np
 from gt4py.gtscript import Field, IJ, K
+import os
 
-BACKEND = "numpy"
-REBUILD = True
+BACKEND = os.environ["GT4PY_BACKEND"]
+REBUILD = False
 DTYPE_FLOAT = np.float64
 DTYPE_INT = np.int_
 FIELD_FLOAT = Field[DTYPE_FLOAT]

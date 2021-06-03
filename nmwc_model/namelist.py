@@ -11,7 +11,7 @@ and all subfunctions.
 # Output control
 # -------------------------------------------------
 out_fname = "output_report"  # file name of output
-iout = 360#360  # write every iout-th time-step into the output file
+iout = 2#360  # write every iout-th time-step into the output file
 iiniout = 1  # write initial field (0 = no, 1 = yes)
 
 # Domain size
@@ -24,7 +24,7 @@ nz = 60  # vertical resolution
 dt = 10  # time step [s]
 diff = 0.05#0.02  # (horizontal) diffusion coefficient
 diffvert = 0.005#0.001
-time = 6 * 60 * 60  # integration time [s]
+time = 400#6 * 60 * 60  # integration time [s]
 
 # Topography
 # -------------------------------------------------

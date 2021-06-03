@@ -6,7 +6,7 @@ from nmwc_model import BACKEND, DEFAULT_ORIGIN, DTYPE_FLOAT
 from nmwc_model.output import write_output
 
 import gt4py as gt
-
+from time import time as get_time
 
 
 th0 = make_1D_storage(nz1)
@@ -63,6 +63,7 @@ if irelax == 1:
     setbnd(unow, ubnd1, ubnd2, nxb=nxb1)
 
 its_out = 0
+t0 = get_time()
 for its in range(1, int(nts+1)):
     time = its*dt
     topofact = np.float64(min(1.0, float(time) / topotim))
@@ -74,8 +75,10 @@ for its in range(1, int(nts+1)):
     prog_isendens(sold, snow, snew, unow, dtdx=dtdx, origin=(nb, 0, 0), domain=(nx, 1, nz1))
     prog_velocity(uold, unow, unew, mtg, dtdx=dtdx, origin=(nb, 0, 0), domain=(nx1, 1, nz1))
     if irelax == 1:
-        relax_boundary(snew, sbnd1, sbnd2, rel_field)
-        relax_boundary(unew, ubnd1, ubnd2, rel_field1)
+        relax_boundary_noregion(snew, sbnd1, sbnd2, rel_field, rel_mask)
+        relax_boundary_noregion(unew, ubnd1, ubnd2, rel_field1, rel_mask1)
+        #relax_boundary(snew, sbnd1, sbnd2, rel_field)
+        #relax_boundary(unew, ubnd1, ubnd2, rel_field1)
         #relax_3D(snew, sbnd1, sbnd2, nx=nx, nb=nb)
         #relax_3D(unew, ubnd1, ubnd2, nx=nx1, nb=nb)
 
@@ -93,7 +96,7 @@ for its in range(1, int(nts+1)):
         u_max = np.amax(view_storage(unow[nb:nb+nx1,0,:nz]))
         cfl_max = u_max * dtdx
         print("============================================================\n")
-        print(f"T: {time} CFL MAX: {cfl_max} U MAX: {u_max} m/s \n")
+        print(f"T: {time} s CFL MAX: {cfl_max} U MAX: {u_max} m/s \n")
         if cfl_max > 1:
             print("!!! WARNING: CFL larger than 1 !!!\n")
         elif np.isnan(cfl_max):
@@ -104,5 +107,8 @@ for its in range(1, int(nts+1)):
         T[its_out] = time
         makeoutput(unow, snow, zhtnow, its_out, Z, U, S)
         its_out += 1
+
+t1 = get_time()
+print(f"Backend: {BACKEND}, Elapsed time: {t1-t0} s")
 
 write_output(nout, Z, U, S, T)

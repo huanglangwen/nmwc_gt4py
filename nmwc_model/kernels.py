@@ -159,7 +159,7 @@ def make_rel_field(ni, nj, nx, nb):
     rel_mask[n-nr:n,0] = -1
     return rel_field, rel_mask
 
-
+"""
 @stencil(backend=BACKEND, rebuild=REBUILD)
 def relax_boundary(phi: FIELD_FLOAT,
                    phi1: FIELD_FLOAT_K,
@@ -169,6 +169,19 @@ def relax_boundary(phi: FIELD_FLOAT,
         with horizontal(region[:nr,0]):
             phi = phi1*rel + phi*(1-rel)
         with horizontal(region[nxb1-nr-1:nxb1,0]):
+            phi = phi2*rel + phi*(1-rel)
+"""
+
+@stencil(backend=BACKEND, rebuild=REBUILD)
+def relax_boundary_noregion(phi: FIELD_FLOAT,
+                            phi1: FIELD_FLOAT_K,
+                            phi2: FIELD_FLOAT_K,
+                            rel: FIELD_FLOAT_IJ,
+                            rel_mask: FIELD_INT_IJ):
+    with computation(FORWARD), interval(...):
+        if rel_mask > 0:
+            phi = phi1*rel + phi*(1-rel)
+        if rel_mask < 0:
             phi = phi2*rel + phi*(1-rel)
 
 def relax_3D(phi: FIELD_FLOAT,
