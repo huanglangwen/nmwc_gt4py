@@ -224,7 +224,9 @@ def diffusion(phinew: FIELD_FLOAT,
 @stencil(backend=BACKEND, rebuild=REBUILD)
 def diag_pressure(snew: FIELD_FLOAT,
                   prs: FIELD_FLOAT,
-                  prs0: FIELD_FLOAT_K):
+                  prs0: FIELD_FLOAT_K,
+                  *,
+                  dth: DTYPE_FLOAT):
     with computation(BACKWARD):
         with interval(-1, None):
             prs = prs0
@@ -237,7 +239,9 @@ def diag_montgomery(exn: FIELD_FLOAT,
                     prs: FIELD_FLOAT,
                     topo: FIELD_FLOAT_IJ,
                     *,
-                    topofact: DTYPE_FLOAT):
+                    topofact: DTYPE_FLOAT,
+                    dth: DTYPE_FLOAT,
+                    th00: DTYPE_FLOAT):
     with computation(FORWARD), interval(...):
         exn = cp*(prs/pref)**rdcp
     with computation(FORWARD):

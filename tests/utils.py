@@ -2,7 +2,30 @@
 import numpy as np
 
 from tests import conf
+from nmwc_model import BACKEND, DEFAULT_ORIGIN
+import gt4py as gt
 
+def make_storage(np_arr: np.ndarray, nx, nb, nz):
+    nxb1 = nx + 2*nb + 1
+    nz1 = nz + 1
+    len_x, len_y = np_arr.shape
+    storage = gt.storage.zeros(BACKEND, DEFAULT_ORIGIN, (nxb1, 1, nz1), np_arr.dtype)
+    storage[:len_x, :, :len_y] = np_arr[:, np.newaxis, :]
+    return storage
+
+def make_k_storage(np_arr: np.ndarray, nz):
+    nz1 = nz + 1
+    len_z = len(np_arr)
+    storage = gt.storage.zeros(BACKEND, DEFAULT_ORIGIN, (nz1,), np_arr.dtype, mask=(False, False, True))
+    storage[:len_z] = np_arr[:]
+    return storage
+
+def make_ij_storage(np_arr: np.ndarray, nx, nb):
+    nxb1 = nx + 2*nb + 1
+    len_x = len(np_arr)
+    storage = gt.storage.zeros(BACKEND, DEFAULT_ORIGIN, (nxb1,1), np_arr.dtype)
+    storage[:len_x, :] = np_arr[:]
+    return storage
 
 def get_random_int(min_value=0, max_value=100):
     return np.random.randint(min_value, max_value, dtype=int)

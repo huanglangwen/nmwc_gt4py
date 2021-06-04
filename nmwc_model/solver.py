@@ -85,8 +85,8 @@ for its in range(1, int(nts+1)):
     diffusion(snew, sold, tau, diffvert=diffvert, origin=(nb, 0, 0), domain=(nx, 1, nz1))
     diffusion(unew, uold, tau, diffvert=diffvert, origin=(nb, 0, 0), domain=(nx1, 1, nz1))
 
-    diag_pressure(snew, prs, prs0, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
-    diag_montgomery(exn, mtg, prs, topo, topofact=topofact, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
+    diag_pressure(snew, prs, prs0, dth=dth, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
+    diag_montgomery(exn, mtg, prs, topo, topofact=topofact, dth=dth, th00=th00, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
     diag_height(zhtnow, exn, prs, th0, topo, topofact=topofact, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
 
     uold, unow, unew = unow, unew, uold
