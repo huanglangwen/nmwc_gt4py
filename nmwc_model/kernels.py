@@ -211,14 +211,18 @@ def relax_2D(phi: FIELD_FLOAT_IJ,
 @stencil(backend=BACKEND, rebuild=REBUILD)
 def diffusion(phinew: FIELD_FLOAT,
               phibuf: FIELD_FLOAT,
-              tau: FIELD_FLOAT_K,
-              *,
-              diffvert: DTYPE_FLOAT):
-    with computation(FORWARD), interval(0, -1):
-        if tau > 0:
+              tau: FIELD_FLOAT_K):
+    with computation(FORWARD), interval(...):
             phibuf = phinew + tau*(phinew[-1,0,0]-2*phinew+phinew[1,0,0])/4.0
-    with computation(FORWARD), interval(0, -1):
-        if tau > 0:
+    with computation(FORWARD), interval(...):
+            phinew = phibuf
+
+@stencil(backend=BACKEND, rebuild=REBUILD)
+def diffusion_simple(phinew: FIELD_FLOAT,
+                     phibuf: FIELD_FLOAT):
+    with computation(FORWARD), interval(...):
+            phibuf = phinew + diff*(phinew[-1,0,0]-2*phinew+phinew[1,0,0])/4.0
+    with computation(FORWARD), interval(...):
             phinew = phibuf
 
 @stencil(backend=BACKEND, rebuild=REBUILD)
@@ -242,12 +246,12 @@ def diag_montgomery(exn: FIELD_FLOAT,
                     topofact: DTYPE_FLOAT,
                     dth: DTYPE_FLOAT,
                     th00: DTYPE_FLOAT):
-    with computation(FORWARD), interval(...):
-        exn = cp*(prs/pref)**rdcp
     with computation(FORWARD):
         with interval(0, 1):
+            exn = cp * (prs / pref) ** rdcp
             mtg = g*topo*topofact + (th00+dth/2.0)*exn
         with interval(1, None):
+            exn = cp * (prs / pref) ** rdcp
             mtg = mtg[0,0,-1] + dth*exn
 
 @stencil(backend=BACKEND, rebuild=REBUILD)

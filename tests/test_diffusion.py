@@ -3,46 +3,36 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from nmwc_model import diffusion
+from nmwc_model.kernels import diffusion
 
 from tests import utils
-
-
-def test_exception():
-    nx = utils.get_random_nx()
-    nb = utils.get_random_nb()
-    nz = utils.get_random_nz()
-
-    tau = utils.get_random_array_1d(nz, min_value=-100.0, max_value=-1.0)
-    snew = utils.get_random_array_2d(nx + 2 * nb, nz)
-    unew = utils.get_random_array_2d(nx + 1 + 2 * nb, nz)
-
-    # hack
-    diffusion.__dict__["nx"] = nx
-    diffusion.__dict__["nb"] = nb
-
-    try:
-        diffusion.horizontal_diffusion(tau, unew, snew)
-    except ValueError:
-        assert True
-
+from tests.utils import make_storage, make_k_storage, make_ij_storage
 
 def test_dry():
     # load reference data
     ds = np.load("baseline_datasets/test_diffusion/test_dry.npz")
 
     # hack
-    diffusion.__dict__["nx"] = ds["nx"]
-    diffusion.__dict__["nb"] = ds["nb"]
-    diffusion.__dict__["imoist"] = 0
-    diffusion.__dict__["irelax"] = 1
+    nx = int(ds["nx"])
+    nx1 = nx+1
+    nb = int(ds["nb"])
+    nz = ds["unew"].shape[1]
+    tau = make_k_storage(ds["tau"], nz)
+    unew = make_storage(ds["unew"], nx, nb, nz)
+    snew = make_storage(ds["snew"], nx, nb, nz)
+    ubuf = make_storage(np.zeros_like(ds["unew"]), nx, nb, nz)
+    sbuf = make_storage(np.zeros_like(ds["snew"]), nx, nb, nz)
 
     # run user code
-    unew, snew = diffusion.horizontal_diffusion(ds["tau"], ds["unew"], ds["snew"])
+    diffusion(snew, sbuf, tau, origin=(nb, 0, 0), domain=(nx, 1, nz))
+    diffusion(unew, ubuf, tau, origin=(nb, 0, 0), domain=(nx1, 1, nz))
+    snew.device_to_host()
+    unew.device_to_host()
 
     # validation
-    utils.compare_arrays(unew, ds["unew_val"])
-    utils.compare_arrays(snew, ds["snew_val"])
+    # array[1, 0, :]
+    utils.compare_arrays(unew[nb:nx1+nb,0,:nz].view(np.ndarray), ds["unew_val"][nb:nx1+nb,:])
+    utils.compare_arrays(snew[nb:nx+nb,0,:nz].view(np.ndarray), ds["snew_val"][nb:nx+nb,:])
 
 
 def test_dry_periodic():

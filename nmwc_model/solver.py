@@ -5,7 +5,6 @@ from nmwc_model.namelist import *
 from nmwc_model import BACKEND, DEFAULT_ORIGIN, DTYPE_FLOAT
 from nmwc_model.output import write_output
 
-import gt4py as gt
 from time import time as get_time
 
 
@@ -64,13 +63,16 @@ if irelax == 1:
 
 its_out = 0
 t0 = get_time()
+time = 0.0
 for its in range(1, int(nts+1)):
-    time = its*dt
-    topofact = np.float64(min(1.0, float(time) / topotim))
+    topofact = float(min(1.0, float(time) / topotim))
     if its == 1:
         dtdx = dt/dx/2.0
+        time += dt/2.0
     else:
         dtdx = dt/dx
+        time += dt
+
 
     prog_isendens(sold, snow, snew, unow, dtdx=dtdx, origin=(nb, 0, 0), domain=(nx, 1, nz1))
     prog_velocity(uold, unow, unew, mtg, dtdx=dtdx, origin=(nb, 0, 0), domain=(nx1, 1, nz1))
@@ -82,12 +84,12 @@ for its in range(1, int(nts+1)):
         #relax_3D(snew, sbnd1, sbnd2, nx=nx, nb=nb)
         #relax_3D(unew, ubnd1, ubnd2, nx=nx1, nb=nb)
 
-    diffusion(snew, sold, tau, diffvert=diffvert, origin=(nb, 0, 0), domain=(nx, 1, nz1))
-    diffusion(unew, uold, tau, diffvert=diffvert, origin=(nb, 0, 0), domain=(nx1, 1, nz1))
+    diffusion(snew, sold, tau, origin=(nb, 0, 0), domain=(nx, 1, nz))
+    diffusion(unew, uold, tau, origin=(nb, 0, 0), domain=(nx1, 1, nz))
 
-    diag_pressure(snew, prs, prs0, dth=dth, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
-    diag_montgomery(exn, mtg, prs, topo, topofact=topofact, dth=dth, th00=th00, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
-    diag_height(zhtnow, exn, prs, th0, topo, topofact=topofact, origin=(0, 0, 0), domain=(nxb1, 1, nz1))
+    diag_pressure(snew, prs, prs0, dth=dth, origin=(nb, 0, 0), domain=(nx, 1, nz1))
+    diag_montgomery(exn, mtg, prs, topo, topofact=topofact, dth=dth, th00=th00, origin=(nb, 0, 0), domain=(nx, 1, nz1))
+    diag_height(zhtnow, exn, prs, th0, topo, topofact=topofact, origin=(nb, 0, 0), domain=(nx, 1, nz1))
 
     uold, unow, unew = unow, unew, uold
     sold, snow, snew = snow, snew, sold

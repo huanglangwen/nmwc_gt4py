@@ -11,20 +11,20 @@ and all subfunctions.
 # Output control
 # -------------------------------------------------
 out_fname = "output_report"  # file name of output
-iout = 2#360  # write every iout-th time-step into the output file
+iout = 300#360  # write every iout-th time-step into the output file
 iiniout = 1  # write initial field (0 = no, 1 = yes)
 
 # Domain size
 # -------------------------------------------------
 xl = 500000.0  # domain size  [m]
-nx = 100  # number of grid points in horizontal direction
+nx = 1000#100  # number of grid points in horizontal direction
 dx = xl / nx  # horizontal resolution [m]
 thl = 150.0  # domain depth  [K]
-nz = 60  # vertical resolution
-dt = 10  # time step [s]
-diff = 0.05#0.02  # (horizontal) diffusion coefficient
+nz = 600  # vertical resolution
+dt = 1#10  # time step [s]
+diff = 0.02  # (horizontal) diffusion coefficient
 diffvert = 0.005#0.001
-time = 400#6 * 60 * 60  # integration time [s]
+time = 600#6 * 60 * 60  # integration time [s]
 
 # Topography
 # -------------------------------------------------
